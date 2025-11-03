@@ -1,0 +1,294 @@
+﻿@using BikeStores_HW03.Models.ViewModels
+@model HomeIndexVM
+@{
+    ViewBag.Title = "Home";
+    var brandId = Model.FilterBrandId;
+    var categoryId = Model.FilterCategoryId;
+}
+    <div class="big-div" style="background-color:pink; border-radius:5px;">
+        @if (ViewBag.Success != null)
+        {
+            <div class="alert alert-success">@ViewBag.Success</div>
+        }
+
+        <div class="row" style="display: flex; flex-wrap: wrap; align-items: flex-start;">
+            <div class="col-md-4">
+                <div class="panel panel-default">
+                    <div class="panel-heading d-flex justify-content-between align-items-center">
+                        <strong>Staff</strong>
+                        @Html.ActionLink("Create", "Create", "staffs", null, new { @class = "btn btn-xs", style = "background-color:hotpink; color:white;" })
+                    </div>
+                    <div class="panel-body">
+                        @if (Model.StaffCard?.Staff == null)
+                        {
+                            <em>No staff found.</em>
+                        }
+                        else
+                        {
+                            var s = Model.StaffCard.Staff;
+                            <div style="display: grid; grid-template-columns: 130px 1fr; row-gap: 5px;">
+                                <div><strong>First Name:</strong></div>
+                                <div>@s.first_name</div>
+
+                                <div><strong>Last Name:</strong></div>
+                                <div>@s.last_name</div>
+
+                                <div><strong>Email:</strong></div>
+                                <div>@s.email</div>
+
+                                <div><strong>Phone:</strong></div>
+                                <div>@s.phone</div>
+
+                                <div><strong>Active:</strong></div>
+                                <div>@(s.active == 1 ? "Yes" : "No")</div>
+                            </div>
+                        }
+
+                        <div class="item-sold-container" style="background-color:dimgrey; border-radius:5px; min-width:250px; padding:10px;">
+                            <strong>Latest Items Sold</strong>
+                            <ul class="list-unstyled">
+                                @if (!Model.StaffCard.LatestSoldProducts.Any())
+                                {
+                                    <li><em>No sales recorded.</em></li>
+                                }
+                                else
+                                {
+                                    foreach (var p in Model.StaffCard.LatestSoldProducts)
+                                    {
+                                        <li>@p</li>
+                                    }
+                                }
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="panel-footer text-center">
+                        @{
+                            var totalS = Math.Max(Model.StaffTotal, 1);
+                            var currentS = Math.Min(Math.Max(Model.StaffPage, 1), totalS);
+                            var startS = currentS - 2;
+                            if (startS < 1) { startS = 1; }
+                            var endS = startS + 4;
+                            if (endS > totalS) { endS = totalS; startS = Math.Max(1, endS - 4); }
+                        }
+
+                        @if (currentS > 1)
+                        {
+                            @Html.ActionLink("<<", "Index", new { staffPage = 1, custPage = Model.CustomerPage, prodPage = Model.ProductPage, brandId, categoryId }, new { @class = "btn btn-default btn-xs" })
+                            @Html.ActionLink("<", "Index", new { staffPage = currentS - 1, custPage = Model.CustomerPage, prodPage = Model.ProductPage, brandId, categoryId }, new { @class = "btn btn-default btn-xs" })
+                        }
+                        else
+                        {
+                            <span class="btn btn-default btn-xs disabled"><<</span>
+                            <span class="btn btn-default btn-xs disabled"><</span>
+                        }
+
+                        @for (int i = startS; i <= endS; i++)
+                        {
+                            var css = i == currentS ? "btn btn-primary btn-xs" : "btn btn-default btn-xs";
+                            @Html.ActionLink(i.ToString(), "Index", new { staffPage = i, custPage = Model.CustomerPage, prodPage = Model.ProductPage, brandId, categoryId }, new { @class = css })
+                        }
+
+                        @if (currentS < totalS)
+                        {
+                            @Html.ActionLink(">", "Index", new { staffPage = currentS + 1, custPage = Model.CustomerPage, prodPage = Model.ProductPage, brandId, categoryId }, new { @class = "btn btn-default btn-xs" })
+                            @Html.ActionLink(">>", "Index", new { staffPage = totalS, custPage = Model.CustomerPage, prodPage = Model.ProductPage, brandId, categoryId }, new { @class = "btn btn-default btn-xs" })
+                        }
+                        else
+                        {
+                            <span class="btn btn-default btn-xs disabled">></span>
+                            <span class="btn btn-default btn-xs disabled">>></span>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            
+            <div class="col-md-4">
+                <div class="panel panel-default">
+                    <div class="panel-heading d-flex justify-content-between align-items-center">
+                        <strong>Customers</strong>
+                        @Html.ActionLink("Create", "CreateCustomer", null, new { @class = "btn btn-xs", style = "background-color:hotpink; color:white;" })
+                    </div>
+                    <div class="panel-body">
+                        @if (Model.CustomerCard?.Customer == null)
+                        {
+                            <em>No customers found.</em>
+                        }
+                        else
+                        {
+                            var c = Model.CustomerCard.Customer;
+                            <div style="display: grid; grid-template-columns: 130px 1fr; row-gap: 5px;">
+                                <div><strong>First Name:</strong></div>
+                                <div>@c.first_name</div>
+
+                                <div><strong>Last Name:</strong></div>
+                                <div>@c.last_name</div>
+
+                                <div><strong>Email:</strong></div>
+                                <div>@c.email</div>
+
+                                <div><strong>Phone:</strong></div>
+                                <div>@c.phone</div>
+
+                                <div><strong>City:</strong></div>
+                                <div>@c.city</div>
+                            </div>
+                        }
+
+                        <div class="item-purchased-container" style="background-color:dimgrey; border-radius:5px; padding:10px;">
+                            <strong>Last 5 Items Purchased</strong>
+                            <ul class="list-unstyled">
+                                @if (!Model.CustomerCard.LatestPurchasedProducts.Any())
+                                {
+                                    <li><em>No purchases recorded.</em></li>
+                                }
+                                else
+                                {
+                                    foreach (var item in Model.CustomerCard.LatestPurchasedProducts)
+                                    {
+                                        <li>@item</li>
+                                    }
+                                }
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="panel-footer text-center">
+                        @{
+                            var totalC = Math.Max(Model.CustomerTotal, 1);
+                            var currentC = Math.Min(Math.Max(Model.CustomerPage, 1), totalC);
+                            var startC = currentC - 2;
+                            if (startC < 1) { startC = 1; }
+                            var endC = startC + 4;
+                            if (endC > totalC) { endC = totalC; startC = Math.Max(1, endC - 4); }
+                        }
+
+                        @if (currentC > 1)
+                        {
+                            @Html.ActionLink("<<", "Index", new { staffPage = Model.StaffPage, custPage = 1, prodPage = Model.ProductPage, brandId, categoryId }, new { @class = "btn btn-default btn-xs" })
+                            @Html.ActionLink("<", "Index", new { staffPage = Model.StaffPage, custPage = currentC - 1, prodPage = Model.ProductPage, brandId, categoryId }, new { @class = "btn btn-default btn-xs" })
+                        }
+                        else
+                        {
+                            <span class="btn btn-default btn-xs disabled"><<</span>
+                            <span class="btn btn-default btn-xs disabled"><</span>
+                        }
+
+                        @for (int i = startC; i <= endC; i++)
+                        {
+                            var css = i == currentC ? "btn btn-primary btn-xs" : "btn btn-default btn-xs";
+                            @Html.ActionLink(i.ToString(), "Index", new { staffPage = Model.StaffPage, custPage = i, prodPage = Model.ProductPage, brandId, categoryId }, new { @class = css })
+                        }
+
+                        @if (currentC < totalC)
+                        {
+                            @Html.ActionLink(">", "Index", new { staffPage = Model.StaffPage, custPage = currentC + 1, prodPage = Model.ProductPage, brandId, categoryId }, new { @class = "btn btn-default btn-xs" })
+                            @Html.ActionLink(">>", "Index", new { staffPage = Model.StaffPage, custPage = totalC, prodPage = Model.ProductPage, brandId, categoryId }, new { @class = "btn btn-default btn-xs" })
+                        }
+                        else
+                        {
+                            <span class="btn btn-default btn-xs disabled">></span>
+                            <span class="btn btn-default btn-xs disabled">>></span>
+                        }
+                    </div>
+                </div>
+            </div>
+
+           
+            <div class="col-md-4">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <label for="productId"><strong>Products</strong></label>
+                        <div class="pull-right">
+                            @using (Html.BeginForm("Index", "Home", FormMethod.Get, new { @class = "form-inline" }))
+                            {
+                                @Html.Hidden("staffPage", Model.StaffPage)
+                                @Html.Hidden("custPage", Model.CustomerPage)
+                                @Html.Hidden("prodPage", 1)
+
+                                @Html.DropDownList(
+                                    "productId",
+                                    (SelectList)ViewBag.ProductList,
+                                    "-- Select product --",
+                                    new { @class = "form-control input-sm", style = "width:200px; margin-right:6px;" })
+
+                                @Html.DropDownList(
+                                    "brandId",
+                                    (SelectList)ViewBag.BrandList,
+                                    "All brands",
+                                    new { @class = "form-control input-sm", style = "margin-right:6px;" })
+
+                                @Html.DropDownList(
+                                    "categoryId",
+                                    (SelectList)ViewBag.CategoryList,
+                                    "All categories",
+                                    new { @class = "form-control input-sm", style = "margin-right:6px;" })
+
+                                <button type="submit" class="btn btn-sm btn-default" style="background-color:lightgreen">Apply</button>
+                            }
+                        </div>
+                    </div>
+                    <div class="panel-body">
+                        @if (Model.SelectedProduct != null)
+                        {
+                            <hr />
+                            <div class="media">
+                                <div class="media-left" style="width:96px;">
+                                    <img src="@Url.Content(Model.SelectedProduct.ImageUrl)"
+                                         alt="@Model.SelectedProduct.ProductName"
+                                         style="width:96px;height:96px;object-fit:cover;"
+                                         onerror="this.onerror=null;this.src='@Url.Content("~/Content/images/placeholder.jpg")';" />
+                                </div>
+                                <div class="media-body">
+                                    <strong>@Model.SelectedProduct.ProductName</strong><br />
+                                    <small>@Model.SelectedProduct.BrandName • @Model.SelectedProduct.CategoryName • @Model.SelectedProduct.ModelYear</small><br />
+                                    <span>@Model.SelectedProduct.ListPrice.ToString("C")</span>
+                                </div>
+                            </div>
+                        }
+                    </div>
+
+                    <div class="panel-footer text-center">
+                        @{
+                            var totalP = Math.Max(Model.ProductTotalPages, 1);
+                            var currentP = Math.Min(Math.Max(Model.ProductPage, 1), totalP);
+                            var startP = currentP - 2;
+                            if (startP < 1) { startP = 1; }
+                            var endP = startP + 4;
+                            if (endP > totalP) { endP = totalP; startP = Math.Max(1, endP - 4); }
+                        }
+
+                        @if (currentP > 1)
+                        {
+                            @Html.ActionLink("<<", "Index", new { staffPage = Model.StaffPage, custPage = Model.CustomerPage, prodPage = 1, brandId, categoryId }, new { @class = "btn btn-default btn-xs" })
+                            @Html.ActionLink("<", "Index", new { staffPage = Model.StaffPage, custPage = Model.CustomerPage, prodPage = currentP - 1, brandId, categoryId }, new { @class = "btn btn-default btn-xs" })
+                        }
+                        else
+                        {
+                            <span class="btn btn-default btn-xs disabled"><<</span>
+                            <span class="btn btn-default btn-xs disabled"><</span>
+                        }
+
+                        @for (int i = startP; i <= endP; i++)
+                        {
+                            var css = i == currentP ? "btn btn-primary btn-xs" : "btn btn-default btn-xs";
+                            @Html.ActionLink(i.ToString(), "Index", new { staffPage = Model.StaffPage, custPage = Model.CustomerPage, prodPage = i, brandId, categoryId }, new { @class = css })
+                        }
+
+                        @if (currentP < totalP)
+                        {
+                            @Html.ActionLink(">", "Index", new { staffPage = Model.StaffPage, custPage = Model.CustomerPage, prodPage = currentP + 1, brandId, categoryId }, new { @class = "btn btn-default btn-xs" })
+                            @Html.ActionLink(">>", "Index", new { staffPage = Model.StaffPage, custPage = Model.CustomerPage, prodPage = totalP, brandId, categoryId }, new { @class = "btn btn-default btn-xs" })
+                        }
+                        else
+                        {
+                            <span class="btn btn-default btn-xs disabled">></span>
+                            <span class="btn btn-default btn-xs disabled">>></span>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+ 

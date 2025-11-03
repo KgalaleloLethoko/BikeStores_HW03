@@ -1,0 +1,117 @@
+﻿@model BikeStores_HW03.Models.ViewModels.ReportViewModel
+@{
+    ViewBag.Title = "Reports";
+}
+
+<div class="container mt-4">
+    <h2 class="text-center mb-4">Generate a Report</h2>
+
+    <div class="card shadow-sm p-3 mb-4">
+        <h4>Choose report to generate</h4>
+        <div class="d-flex flex-wrap gap-2">
+            @using (Html.BeginForm("GenerateStaffPerformanceReport", "Reports", FormMethod.Post))
+            {<button class="btn btn-primary" style="background-color:purple">Staff Performance</button>}
+            @using (Html.BeginForm("GenerateCurrentSalesReport", "Reports", FormMethod.Post))
+            {<button class="btn btn-primary" style="background-color:purple">Current Sales</button>}
+            @using (Html.BeginForm("GenerateStockItemsReport", "Reports", FormMethod.Post))
+            {<button class="btn btn-primary" style="background-color:purple">Stock Items</button>}
+            @using (Html.BeginForm("GenerateOrderHistoryReport", "Reports", FormMethod.Post))
+            {<button class="btn btn-primary" style="background-color:purple">Order History</button>}
+            @using (Html.BeginForm("GeneratePopularProductsReport", "Reports", FormMethod.Post))
+            {<button class="btn btn-primary" style="background-color:purple">Popular Products</button>}
+        </div>
+    </div>
+
+    @if (Model.Labels != null && Model.Labels.Count > 0)
+    {
+        <div class="card shadow-sm p-3 mb-4">
+            <h4>@Model.ReportTitle</h4>
+            <canvas id="reportChart" width="400" height="200"></canvas>
+
+            @using (Html.BeginForm("SaveReport", "Reports", FormMethod.Post))
+            {
+                <div class="row mt-3">
+                    <div class="col-md-12">
+                        <label>File name:</label>
+                        @Html.TextBoxFor(m => m.FileName, new { @class = "form-control mb-2" })
+                    </div>
+
+                    <div class="col-md-6">
+                        <label>File type:</label>
+                        @Html.DropDownListFor(
+                            m => m.FileType,
+                            new SelectList(new[] { "PDF", "Excel", "Text" }),
+                            "Select Type",
+                            new { @class = "form-control mb-2" }
+                        )
+                    </div>
+                </div>
+
+                <label>Report description:</label>
+                @Html.TextAreaFor(m => m.Description, new { @class = "form-control", style = "resize: both; width:100%; max-width:100%;" })
+
+                <button type="submit" class="btn btn-success mt-3" style="background-color:purple">Save</button>
+            }
+        </div>
+    }
+
+    <div class="card shadow-sm p-3">
+        <h4>Archives</h4>
+        @if (Model.SavedReports != null && Model.SavedReports.Count > 0)
+        {
+            <ul class="list-group">
+                @foreach (var file in Model.SavedReports)
+                {
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        @file
+                        <span>
+                            @Html.ActionLink("Download", "Download", new { fileName = file }, new { @class = "btn btn-warning btn-sm", style = "background-color:hotpink; border:none; color:white;" })
+                            @Html.ActionLink("Delete", "Delete", new { fileName = file }, new { @class = "btn btn-warning btn-sm", style = "background-color:yellow; border:none; color:black;" })
+                        </span>
+                    </li>
+                }
+            </ul>
+        }
+        else
+        {
+            <p>No saved reports available.</p>
+        }
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const ctx = document.getElementById('reportChart');
+    if (ctx) {
+        const labels = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.Labels));
+        const values = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.Values));
+
+    
+        const colors = values.map((v, i) => `hsl(${i * 40 % 360}, 70%, 50%)`);
+
+        const chartConfig = {
+            type: '@Model.ReportType', 
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: '@Model.ReportTitle',
+                    data: values,
+                    backgroundColor: colors,
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true
+            }
+        };
+
+        
+        if ('@Model.ReportType' === 'bar') {
+            chartConfig.options.scales = {
+                y: { beginAtZero: true }
+            };
+        }
+
+        new Chart(ctx, chartConfig);
+    }
+</script>

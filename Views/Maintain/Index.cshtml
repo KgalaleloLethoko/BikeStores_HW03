@@ -1,0 +1,167 @@
+﻿@model BikeStores_HW03.Models.ViewModels.MaintainViewModel
+@{
+    ViewBag.Title = "Maintain";
+}
+<div class="pink-container" style="background-color:deeppink">
+<div class="container big-div" style="background-color:dimgray; border-radius:5px; padding:15px;">
+    @if (ViewBag.Success != null)
+    {
+        <div class="alert alert-success">@ViewBag.Success</div>
+    }
+
+    <div class="row" style="display:flex;">
+        
+        <div class="col-md-4" >
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <strong>Staff</strong>
+                </div>
+                <div class="panel-body">
+                    @using (Html.BeginForm("Index", "Maintain", FormMethod.Get))
+                    {
+                        <div class="form-group">
+                            @Html.DropDownList("staffId", new SelectList(Model.StaffList, "staff_id", "first_name", Model.SelectedStaff?.StaffMember?.staff_id), "-- Select Staff --", new { @class = "form-control" })
+                            @Html.Hidden("customerId", Model.SelectedCustomer?.CustomerMember?.customer_id)
+                            @Html.Hidden("productId", Model.SelectedProduct?.ProductMember?.product_id)
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-sm">Select Staff</button>
+                    }
+
+                    @if (Model.SelectedStaff != null)
+                    {
+                        var s = Model.SelectedStaff.StaffMember;
+                        <hr />
+                        <div style="display:grid; grid-template-columns:130px 1fr; row-gap:5px;">
+                            <div><strong>First Name:</strong></div><div>@s.first_name</div>
+                            <div><strong>Last Name:</strong></div><div>@s.last_name</div>
+                            <div><strong>Email:</strong></div><div>@s.email</div>
+                            <div><strong>Phone:</strong></div><div>@s.phone</div>
+                            <div><strong>Active:</strong></div><div>@(s.active == 1 ? "Yes" : "No")</div>
+                        </div>
+                        <div class="item-sold-container" style="background-color:dimgrey; border-radius:5px; margin-top:10px; padding:5px;">
+                            <strong>Latest Items Sold</strong>
+                            <ul class="list-unstyled">
+                                @if (!Model.SelectedStaff.LatestSoldProducts.Any())
+                                {
+                                    <li><em>No sales recorded.</em></li>
+                                }
+                                else
+                                {
+                                    foreach (var item in Model.SelectedStaff.LatestSoldProducts)
+                                    {
+                                        <li>@item</li>
+                                    }
+                                }
+                            </ul>
+                        </div>
+                        <div class="mt-2" style="display:flex; gap:5px;">
+                            @Html.ActionLink("Edit", "Edit", "staffs", new { id = s.staff_id }, new { @class = "btn btn-sm", style = "background-color:purple; color:white;" })
+                            @Html.ActionLink("Update", "Edit", "staffs", new { id = s.staff_id }, new { @class = "btn btn-sm", style = "background-color:hotpink; color:white;" })
+                            @Html.ActionLink("Delete", "Delete", "staffs", new { id = s.staff_id }, new { @class = "btn btn-sm", style = "background-color:yellow; color:white;" })
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+      
+        <div class="col-md-4">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <strong>Customer</strong>
+                </div>
+                <div class="panel-body">
+                    @using (Html.BeginForm("Index", "Maintain", FormMethod.Get))
+                    {
+                        <div class="form-group">
+                            @Html.DropDownList("customerId", new SelectList(Model.CustomerList, "customer_id", "first_name", Model.SelectedCustomer?.CustomerMember?.customer_id), "-- Select Customer --", new { @class = "form-control" })
+                            @Html.Hidden("staffId", Model.SelectedStaff?.StaffMember?.staff_id)
+                            @Html.Hidden("productId", Model.SelectedProduct?.ProductMember?.product_id)
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-sm">Select Customer</button>
+                    }
+
+                    @if (Model.SelectedCustomer != null)
+                    {
+                        var c = Model.SelectedCustomer.CustomerMember;
+                        <hr />
+                        <div style="display:grid; grid-template-columns:130px 1fr; row-gap:5px;">
+                            <div><strong>First Name:</strong></div><div>@c.first_name</div>
+                            <div><strong>Last Name:</strong></div><div>@c.last_name</div>
+                            <div><strong>Email:</strong></div><div>@c.email</div>
+                            <div><strong>Phone:</strong></div><div>@c.phone</div>
+                            <div><strong>City:</strong></div><div>@c.city</div>
+                        </div>
+                        <div class="item-purchased-container" style="background-color:dimgrey; border-radius:5px; margin-top:10px; padding:5px;">
+                            <strong>Latest Purchased Products</strong>
+                            <ul class="list-unstyled">
+                                @if (!Model.SelectedCustomer.LatestPurchasedProducts.Any())
+                                {
+                                    <li><em>No purchases recorded.</em></li>
+                                }
+                                else
+                                {
+                                    foreach (var item in Model.SelectedCustomer.LatestPurchasedProducts)
+                                    {
+                                        <li>@item</li>
+                                    }
+                                }
+                            </ul>
+                        </div>
+                        <div class="mt-2" style="display:flex; gap:5px;">
+                            @Html.ActionLink("Edit", "Edit", "customers", new { id = c.customer_id }, new { @class = "btn btn-sm", style = "background-color:purple; color:white;" })
+                            @Html.ActionLink("Update", "Edit", "customers", new { id = c.customer_id }, new { @class = "btn btn-sm", style = "background-color:hotpink; color:white;" })
+                            @Html.ActionLink("Delete", "Delete", "customers", new { id = c.customer_id }, new { @class = "btn btn-sm", style = "background-color:yellow; color:white;" })
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+
+        <div class="col-md-4" style="padding:10px;">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <strong>Product</strong>
+                </div>
+                <div class="panel-body">
+                    @using (Html.BeginForm("Index", "Maintain", FormMethod.Get))
+                    {
+                        <div class="form-group">
+                            @Html.DropDownList("productId", new SelectList(Model.ProductList, "product_id", "product_name", Model.SelectedProduct?.ProductMember?.product_id), "-- Select Product --", new { @class = "form-control" })
+                            @Html.Hidden("staffId", Model.SelectedStaff?.StaffMember?.staff_id)
+                            @Html.Hidden("customerId", Model.SelectedCustomer?.CustomerMember?.customer_id)
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-sm">Select Product</button>
+                    }
+
+                    @if (Model.SelectedProduct != null)
+                    {
+                        var p = Model.SelectedProduct.ProductMember;
+                        <hr />
+                        <div style="display:flex; gap:10px;">
+                            <div>
+                                <img src="@Model.SelectedProduct.ImageUrl" alt="Product Image" class="img-fluid" />
+
+                            </div>
+                            <div>
+                                <div><strong>Name:</strong> @p.product_name</div>
+                                <div><strong>Brand:</strong> @p.brands.brand_name</div>
+                                <div><strong>Category:</strong> @p.categories.category_name</div>
+                                <div><strong>Price:</strong> @p.list_price.ToString("C")</div>
+                                <div><strong>Year:</strong> @p.model_year</div>
+                            </div>
+                        </div>
+                        <div class="mt-2" style="display:flex; gap:5px;">
+                            @Html.ActionLink("Edit", "Edit", "products", new { id = p.product_id }, new { @class = "btn btn-sm", style = "background-color:purple; color:white;" })
+                            @Html.ActionLink("Update", "Edit", "products", new { id = p.product_id }, new { @class = "btn btn-sm", style = "background-color:hotpink; color:white;" })
+                            @Html.ActionLink("Delete", "Delete", "products", new { id = p.product_id }, new { @class = "btn btn-sm", style = "background-color:yellow; color:white;" })
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+</div>
